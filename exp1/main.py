@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 ################################################data analysis############################################
     #read data
-    flow_train = pd.read_csv('../data/flow_train.csv')
-    trainsition_train = pd.read_csv('../data/transition_train.csv')
+    flow_train = pd.read_csv('../../data/flow_train.csv')
+    trainsition_train = pd.read_csv('../../data/transition_train.csv')
 
     flow_train.info()
     trainsition_train.info()
