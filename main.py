@@ -32,22 +32,28 @@ if __name__ == '__main__':
     # print(trainsition_train['date_dt'].min())
     # print(trainsition_train['date_dt'].max())
 
-    #groupby district
-    flow_train_by_district = flow_train.groupby('district_code')
-    all_district = pd.DataFrame()
-    for name, d in flow_train_by_district:
-        all_district
-
     # #visualize group by day
     # dwell_by_day = flow_train.groupby('date_dt')['dwell'].sum()
-    # #flow in == flow out cause the total is invariable
+    # # flow in == flow out cause the total is invariable
     # flow_in_by_day = flow_train.groupby('date_dt')['flow_in'].sum()
     # flow_out_by_day = flow_train.groupby('date_dt')['flow_out'].sum()
     # flow_by_day = pd.merge(dwell_by_day.to_frame(), flow_in_by_day.to_frame(), how='left', on='date_dt')
     # flow_by_day = pd.merge(flow_by_day, flow_out_by_day.to_frame(), how='right', on='date_dt')
-    #
-    # # print(flow_by_day)
+
+    # print(flow_by_day)
     # flow_by_day_plot = flow_by_day.reset_index(drop=True)
     # flow_by_day_plot.plot()
     #
     # plt.show()
+
+
+###########################################################data processing##########################################################
+    #construct city-district group
+    cities = flow_train.groupby('city_code')['district_code']
+    city_district_group = {}
+    for name, group in cities:
+        city_district_group[name] = group.tolist()
+
+
+
+
