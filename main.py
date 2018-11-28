@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 if __name__ == '__main__':
 ################################################data analysis############################################
@@ -58,21 +59,23 @@ if __name__ == '__main__':
     #construct city-district data group
     flow_train_city_district = {}
     transition_train_city_district = {}
-    for city, districts in city_district_group.items():
+    for city, districts in tqdm(city_district_group.items()):
         flow_dict = {}
-        trainsition_dict = {}
-        for district in districts:
-            flow_sub_table = flow_train[(flow_train['city_code'] == city) & (flow_train['district_code'] == district)]
-            flow_dict[district] = flow_sub_table
+        transition_dict = {}
+        flow_train_city = flow_train[flow_train['city_code'] == city]
+        transition_train_city = transition_train[transition_train['o_city_code'] == city]
+        for district in tqdm(districts):
+            flow_train_district = flow_train_city[flow_train_city['district_code'] == district]
+            flow_dict[district] = flow_train_district
 
-            transition_sub_table = transition_train[(transition_train['o_city_code'] == city) & (transition_train['o_district_code'] == district)]
-            trainsition_dict[district] = transition_sub_table
+            transition_train_district = transition_train_city[transition_train_city['o_district_code'] == district]
+            transition_dict[district] = transition_train_district
 
         flow_train_city_district[city] = flow_dict
         transition_train_city_district[city] = transition_dict
 
+    flow_train_city_district['06d86ef037e4bd311b94467c3320ff38']['85792b2278de59316d1158f6a97537ec'].info()
     print(flow_train_city_district['06d86ef037e4bd311b94467c3320ff38']['85792b2278de59316d1158f6a97537ec'])
-
     #stat with mod7
 
 
