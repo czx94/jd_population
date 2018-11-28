@@ -9,12 +9,12 @@ if __name__ == '__main__':
     flow_train = pd.read_csv('../data/flow_train.csv')
     transition_train = pd.read_csv('../data/transition_train.csv')
 
-    flow_train.info()
-    transition_train.info()
+    # flow_train.info()
+    # transition_train.info()
 
-    #show info
-    print(flow_train.head())
-    print(transition_train.head())
+    # #show info
+    # print(flow_train.head())
+    # print(transition_train.head())
 
     # #7 cities in total
     # print(flow_train['city_code'].value_counts())
@@ -50,47 +50,68 @@ if __name__ == '__main__':
 
 
 ###########################################################data processing##########################################################
-    #construct city-district name group
-    cities = flow_train.drop_duplicates(['city_code','district_code'], keep='first').groupby('city_code')['district_code']
-    city_district_group = {}
-    for name, group in cities:
-        city_district_group[name] = group.tolist()
+    # #construct city-district name group
+    # cities = flow_train.drop_duplicates(['city_code','district_code'], keep='first').groupby('city_code')['district_code']
+    # city_district_group = {}
+    # for name, group in cities:
+    #     city_district_group[name] = group.tolist()
 
     # verification
     # for city, districts in city_district_group.items():
     #     print(city, len(districts))
 
-    #construct city-district data group
-    flow_train_city_district = {}
-    transition_train_city_district = {}
-    for city, districts in tqdm(city_district_group.items()):
-        flow_dict = {}
-        transition_dict = {}
-        flow_train_city = flow_train[flow_train['city_code'] == city]
-        transition_train_city = transition_train[transition_train['o_city_code'] == city]
-        for district in tqdm(districts):
-            flow_train_district = flow_train_city[flow_train_city['district_code'] == district]
-            flow_dict[district] = flow_train_district.reset_index(drop=True)
-
-            transition_train_district = transition_train_city[transition_train_city['o_district_code'] == district]
-            transition_dict[district] = transition_train_district.reset_index(drop=True)
-
-        flow_train_city_district[city] = flow_dict
-        transition_train_city_district[city] = transition_dict
-
-    # #verifying
-    flow_sample = flow_train_city_district['06d86ef037e4bd311b94467c3320ff38']['85792b2278de59316d1158f6a97537ec']
-    transition_sample = transition_train_city_district['06d86ef037e4bd311b94467c3320ff38']['85792b2278de59316d1158f6a97537ec']
-    # print(flow_sample)
-
-    flow_sample.to_csv('../data/flow_train_sample.csv', index=False)
-    transition_sample.to_csv('../data/transition_train_sample.csv', index=False)
+    # #construct city-district data group
+    # flow_train_city_district = {}
+    # transition_train_city_district = {}
+    # for city, districts in tqdm(city_district_group.items()):
+    #     flow_dict = {}
+    #     transition_dict = {}
+    #     flow_train_city = flow_train[flow_train['city_code'] == city]
+    #     transition_train_city = transition_train[transition_train['o_city_code'] == city]
+    #     for district in tqdm(districts):
+    #         flow_train_district = flow_train_city[flow_train_city['district_code'] == district]
+    #         flow_dict[district] = flow_train_district.reset_index(drop=True)
+    #
+    #         transition_train_district = transition_train_city[transition_train_city['o_district_code'] == district]
+    #         transition_dict[district] = transition_train_district.reset_index(drop=True)
+    #
+    #     flow_train_city_district[city] = flow_dict
+    #     transition_train_city_district[city] = transition_dict
+    #
+    # # #verifying
+    # flow_sample = flow_train_city_district['06d86ef037e4bd311b94467c3320ff38']['85792b2278de59316d1158f6a97537ec']
+    # transition_sample = transition_train_city_district['06d86ef037e4bd311b94467c3320ff38']['85792b2278de59316d1158f6a97537ec']
+    # # print(flow_sample)
+    #
+    # flow_sample.to_csv('../data/flow_train_sample.csv', index=False)
+    # transition_sample.to_csv('../data/transition_train_sample.csv', index=False)
 
 
 #####################################################################modeling#############################################################
-    #statistic with mod7
+    #We'll start by playing the flow, then the transition
+    ###statistic with mod7, week
+    flow_sample = pd.read_csv('../data/flow_train_sample.csv')
+    print(flow_sample.head())
 
+    ##sample
+    #group by mod7
+    flow_sample_group_by_mod7 = flow_sample.groupby(flow_sample.index % 7)
+    for mod, v in flow_sample_group_by_mod7:
+        print(mod, v.drop(['city_code', 'district_code', 'date_dt'], axis=1).mean())
 
+    #group by mod30, month
+    flow_sample_group_by_mod30 = flow_sample.groupby(flow_sample.index % 30)
+    for mod, v in flow_sample_group_by_mod30:
+        print(mod, v.drop(['city_code', 'district_code', 'date_dt'], axis=1).mean())
 
+    ##total
+    #group by mod7
+    flow_group_by_mod7 = flow_train.groupby(flow_train.index % 7)
+    for mod, v in flow_group_by_mod7:
+        print(mod, v.drop(['city_code', 'district_code', 'date_dt'], axis=1).mean())
 
+    #group by mod30, month
+    flow_group_by_mod30 = flow_train.groupby(flow_train.index % 30)
+    for mod, v in flow_group_by_mod30:
+        print(mod, v.drop(['city_code', 'district_code', 'date_dt'], axis=1).mean())
 
