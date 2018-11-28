@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # print(flow_train['city_code'].value_counts())
     # print(transition_train['o_city_code'].value_counts())
 
-    # #7 cities in total
+    # #98 districts in total
     # print(flow_train['district_code'].value_counts())
     # print(transition_train['o_district_code'].value_counts())
 
@@ -51,10 +51,14 @@ if __name__ == '__main__':
 
 ###########################################################data processing##########################################################
     #construct city-district name group
-    cities = flow_train.groupby('city_code')['district_code']
+    cities = flow_train.drop_duplicates(['city_code','district_code'], keep='first').groupby('city_code')['district_code']
     city_district_group = {}
     for name, group in cities:
         city_district_group[name] = group.tolist()
+
+    # verification
+    # for city, districts in city_district_group.items():
+    #     print(city, len(districts))
 
     #construct city-district data group
     flow_train_city_district = {}
