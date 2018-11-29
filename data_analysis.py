@@ -26,8 +26,8 @@ if __name__ == '__main__':
     print(transition_train['o_district_code'].value_counts())
 
     # #274 days in total
-    print(flow_train['date_dt'].value_count())
-    print(flow_train['date_dt'].value_count())
+    print(flow_train['date_dt'].value_counts())
+    print(flow_train['date_dt'].value_counts())
 
     #from 20170601 to 20180301
     print(flow_train['date_dt'].min())

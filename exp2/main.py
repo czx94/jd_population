@@ -24,7 +24,7 @@ def stat_mod_n(n, df, ds_type = 'flow'):
 if __name__ == '__main__':
     #read data
     flow_train = pd.read_csv('../../data/flow_train.csv')
-    total_flow_train, total_flow_val = train_val_split(flow_train)
+    total_flow_train, total_flow_val = train_val_split(flow_train, val_len=15*97)
 
     # transition_train = pd.read_csv('../data/transition_train.csv')
 
