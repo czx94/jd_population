@@ -1,16 +1,27 @@
 from sklearn.metrics import mean_squared_error, mean_squared_log_error, mean_absolute_error
 
-def MSE(x, y):
-    return mean_squared_error(x, y)
+def MSE(y1, y2):
+    return mean_squared_error(y1, y2)
 
-def RMSE(x, y):
-    return MSE(x, y) ** 0.5
+def RMSE(y1, y2):
+    return MSE(y1, y2) ** 0.5
 
-def MAE(x, y):
-    return mean_absolute_error(x, y)
+def MAE(y1, y2):
+    return mean_absolute_error(y1, y2)
 
-def MSLE(x, y):
-    return mean_squared_log_error(x, y)
+def MSLE(y1, y2):
+    return mean_squared_log_error(y1, y2)
 
-def RMSLE(x, y):
-    return MSLE(x, y) ** 0.5
+def RMSLE(y1, y2):
+    return MSLE(y1, y2) ** 0.5
+
+def eval(pred, groundtruth):
+    assert len(pred.index) == len(groundtruth.index)
+    predict = []
+    real = []
+    for i in range(len(pred.index)):
+        predict.append(pred[i]['dwell', 'flow_in', 'flow_out'].tolist())
+        real.append(groundtruth[i]['dwell', 'flow_in', 'flow_out'].tolist())
+        
+    result = RMSLE(predict, real)
+    print('RMSLE error:', result)
