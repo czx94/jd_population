@@ -5,14 +5,17 @@ from tqdm import tqdm
 import os
 
 def generate_csv(city, districts, df, type):
-    flow_train_city = df[df['city_code'] == city]
+    if type == 'flow':
+        train_city = df[df['city_code'] == city]
+    else:
+        train_city = df[df['o_city_code'] == city]
     for district in tqdm(districts):
         if type == 'flow':
-            flow_train_district = flow_train_city[flow_train_city['district_code'] == district]
+            train_district = train_city[train_city['district_code'] == district]
         else:
-            flow_train_district = flow_train_city[flow_train_city['o_district_code'] == district]
+            train_district = train_city[train_city['o_district_code'] == district]
         # #generate csv for each district
-        flow_train_district.to_csv('../data/' + type + '/' + city + '_' + district + '.csv', index=False)
+        train_district.to_csv('../data/' + type + '/' + city + '_' + district + '.csv', index=False)
 
 def train_val_split(raw_ds, val_len = 15):
     return raw_ds[:-val_len].reset_index(drop=True), raw_ds[-15:].reset_index(drop=True)
@@ -65,8 +68,8 @@ if __name__ == '__main__':
         generate_csv(city, districts, transition_train, 'transition')
 
 
-    #train_val_split test
-    flow_sample=pd.read_csv('../data/flow_train_sample.csv')
-    train, val = train_val_split(flow_sample)
-    train.info()
-    val.info()
+    # #train_val_split test
+    # flow_sample=pd.read_csv('../data/flow_train_sample.csv')
+    # train, val = train_val_split(flow_sample)
+    # train.info()
+    # val.info()
