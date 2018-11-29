@@ -16,12 +16,12 @@ def RMSLE(y1, y2):
     return MSLE(y1, y2) ** 0.5
 
 def eval(pred, groundtruth):
-    assert len(pred.index) == len(groundtruth.index)
+    assert len(pred) == len(groundtruth)
     predict = []
     real = []
     for i in range(len(pred.index)):
-        predict.append(pred[i]['dwell', 'flow_in', 'flow_out'].tolist())
-        real.append(groundtruth[i]['dwell', 'flow_in', 'flow_out'].tolist())
-        
+        predict.append(pred.loc[i, ['dwell', 'flow_in', 'flow_out']].tolist())
+        real.append(groundtruth.loc[i, ['dwell', 'flow_in', 'flow_out']].tolist())
+
     result = RMSLE(predict, real)
     print('RMSLE error:', result)
