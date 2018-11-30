@@ -51,40 +51,13 @@ if __name__ == '__main__':
         sample_train, sample_val = train_val_split(flow_sample)
         
         #first condider dwell
-        trend, seasonal, residual = decomp(sample_train['dwell'])
-        
-        trend.dropna(inplace=True) 
-        
-        trend_model = ARIMA(trend, order=(1,1,5)).fit(disp=-1, method='css')
-        n=15
-        trend_pred= trend_model.forecast(n)[0]
-        season_part=seasonal[0:n]
-        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-        dwell_predict=predict+season_part
+        dwell_predict=predict_by_ARIMA(sample_train, 'dwell', param=(1, 1, 6), offset = 0)
         
         #flow_in
-        trend, seasonal, residual = decomp(sample_train['flow_in'])
-        
-        trend.dropna(inplace=True) 
-        
-        trend_model = ARIMA(trend, order=(1,1,5)).fit(disp=-1, method='css')
-        n=15
-        trend_pred= trend_model.forecast(n)[0]
-        season_part=seasonal[0:n]
-        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-        flow_in_predict=predict+season_part
+        flow_in_predict=predict_by_ARIMA(sample_train, 'flow_in', param=(1, 1, 6), offset = 0)
         
         #flow_out
-        trend, seasonal, residual = decomp(sample_train['flow_out'])
-        
-        trend.dropna(inplace=True) 
-        
-        trend_model = ARIMA(trend, order=(1,1,5)).fit(disp=-1, method='css')
-        n=15
-        trend_pred= trend_model.forecast(n)[0]
-        season_part=seasonal[0:n]
-        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-        flow_out_predict=predict+season_part
+        flow_out_predict=predict_by_ARIMA(sample_train, 'flow_out', param=(1, 1, 6), offset = 0)
         
         columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
         flow_sample_prediction = pd.DataFrame(columns = columns)
