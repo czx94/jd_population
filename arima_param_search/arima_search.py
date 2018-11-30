@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from preprocessing import train_val_split
 from utils import *
+import json
 
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima_model import ARIMA
@@ -118,4 +119,5 @@ if __name__ == '__main__':
                 loss_table[str(a)+'_'+str(b)+'_'+str(c)] = loss
 
     sorted(loss_table.items(), key=lambda item:item[1])
-    print(loss_table)
+    with open('loss_table.json', 'w') as f:
+        json.dump(loss_table, f)
