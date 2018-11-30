@@ -69,6 +69,7 @@ if __name__ == '__main__':
         for b in range(4):
             for c in range(13):
                 logger.info(str(a) + '_' + str(b) + '_' + str(c))
+                loss = 100
                 try:
                     for sample in tqdm(all_sample):
                         city, district = sample[:-4].split('_')
@@ -129,13 +130,11 @@ if __name__ == '__main__':
 
                         gt_for_each_sample.append(sample_val)
                         result_for_each_sample.append(flow_sample_prediction)
-                except:
-                    pass
 
-                result = pd.concat(result_for_each_sample).reset_index(drop=True)
-                gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
 
-                try:
+                    result = pd.concat(result_for_each_sample).reset_index(drop=True)
+                    gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
+
                     loss = eval(result, gt)
                 except:
                     pass
