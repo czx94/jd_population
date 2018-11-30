@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 import os
-from .preprocessing import train_val_split
+from preprocessing import train_val_split
 
 def stat_mod_n(n, df, ds_type = 'flow'):
     group_by_mod_n = df.groupby(df.index % n)
@@ -52,9 +52,9 @@ if __name__ == '__main__':
         flow_sample_prediction = pd.DataFrame(columns = columns)
         for d in range(15):
             day = 20180302 + d
-            dwell = sample_result_mod_7[(274 + d) % 7]['dwell'] * 0.5 + total_result_mod_7[(274 + d) % 7]['dwell'] * 0.1 + sample_result_mod_30[(274 + d) % 30]['dwell'] * 0.4
-            flow_in = sample_result_mod_7[(274 + d) % 7]['flow_in'] * 0.5 + total_result_mod_7[(274 + d) % 7]['flow_in'] * 0.1 + sample_result_mod_30[(274 + d) % 30]['flow_in'] * 0.4
-            flow_out = sample_result_mod_7[(274 + d) % 7]['flow_out'] * 0.5 + total_result_mod_7[(274 + d) % 7]['flow_out'] * 0.1 + sample_result_mod_30[(274 + d) % 30]['flow_out'] * 0.4
+            dwell = sample_result_mod_30[(274 + d) % 30]['dwell']
+            flow_in = sample_result_mod_30[(274 + d) % 30]['flow_in']
+            flow_out = sample_result_mod_30[(274 + d) % 30]['flow_out']
             flow_sample_prediction.loc[d] = {columns[0]:day,
                                             columns[1]:city,
                                             columns[2]:district,

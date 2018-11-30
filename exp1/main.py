@@ -32,54 +32,59 @@ if __name__ == '__main__':
     sample_data_path = '../../data/flow/'
     all_sample = os.listdir(sample_data_path)
 
-    gt_for_each_sample = []
-    result_for_each_sample = []
-    for sample in tqdm(all_sample):
-        city, district = sample[:-4].split('_')
-        #We'll start by playing the flow, then the transition
-        ###statistic with mod7, week
-        flow_sample = pd.read_csv(sample_data_path + sample)
-        sample_train, sample_val = train_val_split(flow_sample)
-        # print(sample_train.head(), sample_val.head())
+    #grid search
+    for i in range(10):
+        gt_for_each_sample = []
+        result_for_each_sample = []
+        for sample in tqdm(all_sample):
+            city, district = sample[:-4].split('_')
+            # We'll start by playing the flow, then the transition
+            ###statistic with mod7, week
+            flow_sample = pd.read_csv(sample_data_path + sample)
+            sample_train, sample_val = train_val_split(flow_sample)
+            # print(sample_train.head(), sample_val.head())
 
-        ##sample
-        #group by mod7
-        sample_result_mod_7 = stat_mod_n(7, sample_train)
-        # print(result_sample_by_mod7)
+            ##sample
+            # group by mod7
+            sample_result_mod_7 = stat_mod_n(7, sample_train)
+            # print(result_sample_by_mod7)
 
-        # #group by mod30, month
-        sample_result_mod_30 = stat_mod_n(30, sample_train)
+            # #group by mod30, month
+            sample_result_mod_30 = stat_mod_n(30, sample_train)
 
-        ##total
-        #group by mod7
-        total_result_mod_7 = stat_mod_n(7, flow_train)
+            ##total
+            # group by mod7
+            total_result_mod_7 = stat_mod_n(7, flow_train)
 
-        # #group by mod30, month
-        # total_result_mod_30 = stat_mod_n(30, flow_train)
+            # #group by mod30, month
+            # total_result_mod_30 = stat_mod_n(30, flow_train)
 
-        # #prediction of the coming 15 days based on mod7 stat
-        columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
-        flow_sample_prediction = pd.DataFrame(columns = columns)
-        for d in range(15):
-            day = 20180215 + d
-            dwell = sample_result_mod_7[(259 + d) % 7]['dwell'] * 0.5 + total_result_mod_7[(259 + d) % 7]['dwell'] * 0.1 + sample_result_mod_30[(259 + d) % 30]['dwell'] * 0.4
-            flow_in = sample_result_mod_7[(259 + d) % 7]['flow_in'] * 0.5 + total_result_mod_7[(259 + d) % 7]['flow_in'] * 0.1 + sample_result_mod_30[(259 + d) % 30]['flow_in'] * 0.4
-            flow_out = sample_result_mod_7[(259 + d) % 7]['flow_out'] * 0.5 + total_result_mod_7[(259 + d) % 7]['flow_out'] * 0.1 + sample_result_mod_30[(259 + d) % 30]['flow_out'] * 0.4
+            # #prediction of the coming 15 days based on mod7 stat
+            columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
+            flow_sample_prediction = pd.DataFrame(columns=columns)
+            for d in range(15):
+                day = 20180215 + d
+                dwell = sample_result_mod_7[(259 + d) % 7]['dwell'] * i/10 + sample_result_mod_30[(259 + d) % 30][
+                    'dwell'] * (1 - i/10)
+                flow_in = sample_result_mod_7[(259 + d) % 7]['flow_in'] * i/10 + sample_result_mod_30[(259 + d) % 30][
+                    'flow_in'] * (1 - i/10)
+                flow_out = sample_result_mod_7[(259 + d) % 7]['flow_out'] * i/10 + sample_result_mod_30[(259 + d) % 30][
+                    'flow_out'] * (1 - i/10)
 
-            flow_sample_prediction.loc[d] = {columns[0]:day,
-                                            columns[1]:city,
-                                            columns[2]:district,
-                                            columns[3]:dwell,
-                                            columns[4]:flow_in,
-                                            columns[5]:flow_out}
+                flow_sample_prediction.loc[d] = {columns[0]: day,
+                                                 columns[1]: city,
+                                                 columns[2]: district,
+                                                 columns[3]: dwell,
+                                                 columns[4]: flow_in,
+                                                 columns[5]: flow_out}
 
+            gt_for_each_sample.append(sample_val)
+            result_for_each_sample.append(flow_sample_prediction)
 
-        gt_for_each_sample.append(sample_val)
-        result_for_each_sample.append(flow_sample_prediction)
+        result = pd.concat(result_for_each_sample).reset_index(drop=True)
+        gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
 
-    result = pd.concat(result_for_each_sample).reset_index(drop=True)
-    gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
-
-    eval(result, gt)
+        eval(result, gt)
+        print(i/10)
 
 
