@@ -55,7 +55,7 @@ if __name__ == '__main__':
         
         trend.dropna(inplace=True) 
         
-        trend_model = ARIMA(trend, order=(1,1,5)).fit(disp=-1, method='css')
+        trend_model = ARIMA(trend, order=(1,1,12)).fit(disp=-1, method='css')
         n=15
         trend_pred= trend_model.forecast(n)[0]
         season_part=seasonal[0:n]
