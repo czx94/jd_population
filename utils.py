@@ -55,3 +55,14 @@ def decomp(data):
     residual = decomposition.resid
 
     return trend, seasonal, residual
+
+def stat_mod_n(n, df, ds_type = 'flow'):
+    group_by_mod_n = df.groupby(df.index % n)
+    result_by_mod_n = {}
+    for mod, v in group_by_mod_n:
+        if ds_type == 'flow':
+            result_by_mod_n[mod] = v.drop(['city_code', 'district_code', 'date_dt'], axis=1).mean().to_dict()
+        else:
+            result_by_mod_n[mod] = v.drop(['o_city_code', 'o_district_code', 'date_dt'], axis=1).mean().to_dict()
+
+    return result_by_mod_n

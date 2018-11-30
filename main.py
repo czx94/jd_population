@@ -10,41 +10,7 @@ from statsmodels.tsa.arima_model import ARIMA
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 
-
-def decomp(data):
-    decomposition = seasonal_decompose(data, freq=7, two_sided=False)
-
-    trend = decomposition.trend
-
-    seasonal = decomposition.seasonal
-
-    residual = decomposition.resid
-
-    return trend, seasonal, residual
-
-def stat_mod_n(n, df, ds_type = 'flow'):
-    group_by_mod_n = df.groupby(df.index % n)
-    result_by_mod_n = {}
-    for mod, v in group_by_mod_n:
-        if ds_type == 'flow':
-            result_by_mod_n[mod] = v.drop(['city_code', 'district_code', 'date_dt'], axis=1).mean().to_dict()
-        else:
-            result_by_mod_n[mod] = v.drop(['o_city_code', 'o_district_code', 'date_dt'], axis=1).mean().to_dict()
-
-    return result_by_mod_n
-
-def predict_by_ARIMA(data, type, param=(1, 1, 6), offset = 1):
-    trend, seasonal, residual = decomp(data[type])
-
-    trend.dropna(inplace=True)
-
-    trend_model = ARIMA(trend, order=param).fit(disp=-1, method='css')
-    n = 15
-    trend_pred = trend_model.forecast(n)[0]
-    season_part = seasonal[offset:n+offset]
-    predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-
-    return predict + season_part
+from utils import *
 
 
 if __name__ == '__main__':
