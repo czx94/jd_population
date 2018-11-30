@@ -33,7 +33,7 @@ if __name__ == '__main__':
     all_sample = os.listdir(sample_data_path)
 
     #grid search
-    for i in range(10):
+    for i in range(11):
         gt_for_each_sample = []
         result_for_each_sample = []
         for sample in tqdm(all_sample):
@@ -52,9 +52,12 @@ if __name__ == '__main__':
             # #group by mod30, month
             sample_result_mod_30 = stat_mod_n(30, sample_train)
 
+            # #group by mod30, demi-month
+            sample_result_mod_15 = stat_mod_n(15, sample_train)
+
             ##total
             # group by mod7
-            total_result_mod_7 = stat_mod_n(7, flow_train)
+            # total_result_mod_7 = stat_mod_n(7, flow_train)
 
             # #group by mod30, month
             # total_result_mod_30 = stat_mod_n(30, flow_train)
@@ -64,11 +67,11 @@ if __name__ == '__main__':
             flow_sample_prediction = pd.DataFrame(columns=columns)
             for d in range(15):
                 day = 20180215 + d
-                dwell = sample_result_mod_7[(259 + d) % 7]['dwell'] * i/10 + sample_result_mod_30[(259 + d) % 30][
+                dwell = sample_result_mod_7[(259 + d) % 7]['dwell'] * i/10 + sample_result_mod_15[(259 + d) % 15][
                     'dwell'] * (1 - i/10)
-                flow_in = sample_result_mod_7[(259 + d) % 7]['flow_in'] * i/10 + sample_result_mod_30[(259 + d) % 30][
+                flow_in = sample_result_mod_7[(259 + d) % 7]['flow_in'] * i/10 + sample_result_mod_15[(259 + d) % 15][
                     'flow_in'] * (1 - i/10)
-                flow_out = sample_result_mod_7[(259 + d) % 7]['flow_out'] * i/10 + sample_result_mod_30[(259 + d) % 30][
+                flow_out = sample_result_mod_7[(259 + d) % 7]['flow_out'] * i/10 + sample_result_mod_15[(259 + d) % 15][
                     'flow_out'] * (1 - i/10)
 
                 flow_sample_prediction.loc[d] = {columns[0]: day,

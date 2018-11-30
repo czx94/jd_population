@@ -5,6 +5,23 @@ from tqdm import tqdm
 import os
 from preprocessing import train_val_split
 
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.arima_model import ARIMA
+from sklearn.metrics import mean_squared_error
+from math import sqrt
+
+
+def decomp(data):
+    decomposition = seasonal_decompose(data, freq=7, two_sided=False)
+
+    trend = decomposition.trend
+
+    seasonal = decomposition.seasonal
+
+    residual = decomposition.resid
+
+    return trend, seasonal, residual
+
 def stat_mod_n(n, df, ds_type = 'flow'):
     group_by_mod_n = df.groupby(df.index % n)
     result_by_mod_n = {}
@@ -17,51 +34,72 @@ def stat_mod_n(n, df, ds_type = 'flow'):
     return result_by_mod_n
 
 if __name__ == '__main__':
-    #read data
+    # read data
     flow_train = pd.read_csv('../data/flow_train.csv')
-    # transition_train = pd.read_csv('../data/transition_train.csv')
 
-    #read all sample path
+    # read sample data paths
     sample_data_path = '../data/flow/'
     all_sample = os.listdir(sample_data_path)
-
+    gt_for_each_sample = []
     result_for_each_sample = []
     for sample in tqdm(all_sample):
         city, district = sample[:-4].split('_')
-        #We'll start by playing the flow, then the transition
-        ###statistic with mod7, week
+
         flow_sample = pd.read_csv(sample_data_path + sample)
 
-        ##sample
-        #group by mod7
-        sample_result_mod_7 = stat_mod_n(7, flow_sample)
-        # print(result_sample_by_mod7)
+        sample_train = flow_sample
 
-        # #group by mod30, month
-        sample_result_mod_30 = stat_mod_n(30, flow_sample)
+        # first condider dwell
+        trend, seasonal, residual = decomp(sample_train['dwell'])
 
-        ##total
-        #group by mod7
-        total_result_mod_7 = stat_mod_n(7, flow_train)
+        trend.dropna(inplace=True)
 
-        # #group by mod30, month
-        # total_result_mod_30 = stat_mod_n(30, flow_train)
+        trend_model = ARIMA(trend, order=(1, 1, 5)).fit(disp=-1, method='css')
+        n = 15
+        trend_pred = trend_model.forecast(n)[0]
+        season_part = seasonal[0:n]
+        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+        dwell_predict = predict + season_part
 
-        # #prediction of the coming 15 days based on mod7 stat
+        # flow_in
+        trend, seasonal, residual = decomp(sample_train['flow_in'])
+
+        trend.dropna(inplace=True)
+
+        trend_model = ARIMA(trend, order=(1, 1, 5)).fit(disp=-1, method='css')
+        n = 15
+        trend_pred = trend_model.forecast(n)[0]
+        season_part = seasonal[0:n]
+        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+        flow_in_predict = predict + season_part
+
+        # flow_out
+        trend, seasonal, residual = decomp(sample_train['flow_out'])
+
+        trend.dropna(inplace=True)
+
+        trend_model = ARIMA(trend, order=(1, 1, 5)).fit(disp=-1, method='css')
+        n = 15
+        trend_pred = trend_model.forecast(n)[0]
+        season_part = seasonal[0:n]
+        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+        flow_out_predict = predict + season_part
+
         columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
-        flow_sample_prediction = pd.DataFrame(columns = columns)
+        flow_sample_prediction = pd.DataFrame(columns=columns)
         for d in range(15):
             day = 20180302 + d
-            dwell = sample_result_mod_30[(274 + d) % 30]['dwell']
-            flow_in = sample_result_mod_30[(274 + d) % 30]['flow_in']
-            flow_out = sample_result_mod_30[(274 + d) % 30]['flow_out']
-            flow_sample_prediction.loc[d] = {columns[0]:day,
-                                            columns[1]:city,
-                                            columns[2]:district,
-                                            columns[3]:dwell,
-                                            columns[4]:flow_in,
-                                            columns[5]:flow_out}
+            dwell = dwell_predict[d]
+            flow_in = flow_in_predict[d]
+            flow_out = flow_out_predict[d]
+            flow_sample_prediction.loc[d] = {columns[0]: day,
+                                             columns[1]: city,
+                                             columns[2]: district,
+                                             columns[3]: dwell,
+                                             columns[4]: flow_in,
+                                             columns[5]: flow_out}
 
+        # gt_for_each_sample.append(sample_val)
         result_for_each_sample.append(flow_sample_prediction)
 
     result = pd.concat(result_for_each_sample)
