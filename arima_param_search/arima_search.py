@@ -64,9 +64,9 @@ if __name__ == '__main__':
 
     loss_table = {}
     #grid search
-    for a in range(13):
-        for b in range(4):
-            for c in range(13):
+    for a in range(12):
+        for b in range(3):
+            for c in range(12):
                 logger.info(str(a) + '_' + str(b) + '_' + str(c))
                 loss = 100
                 gt_for_each_sample = []
