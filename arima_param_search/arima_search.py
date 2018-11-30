@@ -60,8 +60,7 @@ if __name__ == '__main__':
     # read sample data paths
     sample_data_path = '../../data/flow/'
     all_sample = os.listdir(sample_data_path)
-    gt_for_each_sample = []
-    result_for_each_sample = []
+
 
     loss_table = {}
     #grid search
@@ -70,6 +69,9 @@ if __name__ == '__main__':
             for c in range(13):
                 logger.info(str(a) + '_' + str(b) + '_' + str(c))
                 loss = 100
+                gt_for_each_sample = []
+                result_for_each_sample = []
+
                 try:
                     for sample in tqdm(all_sample):
                         city, district = sample[:-4].split('_')
@@ -136,6 +138,7 @@ if __name__ == '__main__':
                     gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
 
                     loss = eval(result, gt)
+
                 except:
                     pass
 
