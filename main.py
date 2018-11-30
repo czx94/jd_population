@@ -42,9 +42,9 @@ if __name__ == '__main__':
         flow_sample_prediction = pd.DataFrame(columns=columns)
         for d in range(15):
             day = 20180302 + d
-            dwell = dwell_predict[d]
-            flow_in = flow_in_predict[d]
-            flow_out = flow_out_predict[d]
+            dwell = dwell_predict[d+1]
+            flow_in = flow_in_predict[d+1]
+            flow_out = flow_out_predict[d+1]
             flow_sample_prediction.loc[d] = {columns[0]: day,
                                              columns[1]: city,
                                              columns[2]: district,
