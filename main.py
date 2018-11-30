@@ -33,6 +33,20 @@ def stat_mod_n(n, df, ds_type = 'flow'):
 
     return result_by_mod_n
 
+def predict_by_ARIMA(data, type, param=(1, 1, 6), offset = 1):
+    trend, seasonal, residual = decomp(data[type])
+
+    trend.dropna(inplace=True)
+
+    trend_model = ARIMA(trend, order=param).fit(disp=-1, method='css')
+    n = 15
+    trend_pred = trend_model.forecast(n)[0]
+    season_part = seasonal[offset:n+offset]
+    predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+
+    return predict + season_part
+
+
 if __name__ == '__main__':
     # read data
     flow_train = pd.read_csv('../data/flow_train.csv')
@@ -50,40 +64,13 @@ if __name__ == '__main__':
         sample_train = flow_sample
 
         # first condider dwell
-        trend, seasonal, residual = decomp(sample_train['dwell'])
-
-        trend.dropna(inplace=True)
-
-        trend_model = ARIMA(trend, order=(1, 1, 5)).fit(disp=-1, method='css')
-        n = 15
-        trend_pred = trend_model.forecast(n)[0]
-        season_part = seasonal[0:n]
-        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-        dwell_predict = predict + season_part
+        dwell_predict = predict_by_ARIMA(sample_train, 'dwell')
 
         # flow_in
-        trend, seasonal, residual = decomp(sample_train['flow_in'])
-
-        trend.dropna(inplace=True)
-
-        trend_model = ARIMA(trend, order=(1, 1, 5)).fit(disp=-1, method='css')
-        n = 15
-        trend_pred = trend_model.forecast(n)[0]
-        season_part = seasonal[0:n]
-        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-        flow_in_predict = predict + season_part
+        flow_in_predict = predict_by_ARIMA(sample_train, 'flow_in')
 
         # flow_out
-        trend, seasonal, residual = decomp(sample_train['flow_out'])
-
-        trend.dropna(inplace=True)
-
-        trend_model = ARIMA(trend, order=(1, 1, 5)).fit(disp=-1, method='css')
-        n = 15
-        trend_pred = trend_model.forecast(n)[0]
-        season_part = seasonal[0:n]
-        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-        flow_out_predict = predict + season_part
+        flow_out_predict = predict_by_ARIMA(sample_train, 'flow_out')
 
         columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
         flow_sample_prediction = pd.DataFrame(columns=columns)
