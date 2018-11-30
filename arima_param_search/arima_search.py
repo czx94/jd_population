@@ -68,6 +68,7 @@ if __name__ == '__main__':
     for a in range(13):
         for b in range(4):
             for c in range(13):
+                logger.info(str(a) + '_' + str(b) + '_' + str(c))
                 try:
                     for sample in tqdm(all_sample):
                         city, district = sample[:-4].split('_')
@@ -128,16 +129,19 @@ if __name__ == '__main__':
 
                         gt_for_each_sample.append(sample_val)
                         result_for_each_sample.append(flow_sample_prediction)
-
-                    result = pd.concat(result_for_each_sample).reset_index(drop=True)
-                    gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
-                    loss = eval(result, gt)
-                    logger.info(str(a) + '_' + str(b) + '_' + str(c))
-                    logger.info(loss)
-                    loss_table[str(a) + '_' + str(b) + '_' + str(c)] = loss
-
                 except:
                     pass
+
+                result = pd.concat(result_for_each_sample).reset_index(drop=True)
+                gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
+
+                try:
+                    loss = eval(result, gt)
+                except:
+                    pass
+
+                logger.info(loss)
+                loss_table[str(a) + '_' + str(b) + '_' + str(c)] = loss
 
     sorted(loss_table.items(), key=lambda item:item[1])
     with open('loss_table.json', 'w') as f:
