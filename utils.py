@@ -25,3 +25,4 @@ def eval(pred, groundtruth):
 
     result = RMSLE(predict, real)
     print('RMSLE error:', result)
+    return result
