@@ -24,6 +24,9 @@ from statsmodels.tsa.arima_model import ARIMA
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 
+import logging
+import time
+
 
 def decomp(data):
     decomposition = seasonal_decompose(data, freq=7, two_sided=False)
@@ -38,6 +41,19 @@ def decomp(data):
 
 
 if __name__ == '__main__':
+    #setting log
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level=logging.INFO)
+    if not os.path.isdir('logs'):
+        os.mkdir('logs')
+    fg = str(int(time.time()))
+    log_name = 'log_' + fg + '.txt'
+    handler = logging.FileHandler("./logs/" + log_name)
+    handler.setLevel(logging.INFO)
+    logger.addHandler(handler)
+
+    logger.info("Start print log")
+
     # read data
     flow_train = pd.read_csv('../../data/flow_train.csv')
 
@@ -119,7 +135,8 @@ if __name__ == '__main__':
                 result = pd.concat(result_for_each_sample).reset_index(drop=True)
                 gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
                 loss = eval(result, gt)
-                print(a, b, c)
+                logger.info(str(a)+'_'+str(b)+'_'+str(c))
+                logger.info(loss)
                 loss_table[str(a)+'_'+str(b)+'_'+str(c)] = loss
 
     sorted(loss_table.items(), key=lambda item:item[1])
