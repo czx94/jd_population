@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from preprocessing import train_val_split
 from utils import *
+import json
 
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima_model import ARIMA
@@ -52,70 +53,75 @@ if __name__ == '__main__':
         for b in range(4):
             for c in range(13):
                 for sample in tqdm(all_sample):
+                    try:
+                        city, district = sample[:-4].split('_')
 
-                    city, district = sample[:-4].split('_')
+                        flow_sample = pd.read_csv(sample_data_path + sample)
 
-                    flow_sample = pd.read_csv(sample_data_path + sample)
+                        sample_train, sample_val = train_val_split(flow_sample)
 
-                    sample_train, sample_val = train_val_split(flow_sample)
+                        # first condider dwell
+                        trend, seasonal, residual = decomp(sample_train['dwell'])
 
-                    # first condider dwell
-                    trend, seasonal, residual = decomp(sample_train['dwell'])
+                        trend.dropna(inplace=True)
 
-                    trend.dropna(inplace=True)
+                        trend_model = ARIMA(trend, order=(a, b, c)).fit(disp=-1, method='css')
+                        n = 15
+                        trend_pred = trend_model.forecast(n)[0]
+                        season_part = seasonal[0:n]
+                        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+                        dwell_predict = predict + season_part
 
-                    trend_model = ARIMA(trend, order=(a, b, c)).fit(disp=-1, method='css')
-                    n = 15
-                    trend_pred = trend_model.forecast(n)[0]
-                    season_part = seasonal[0:n]
-                    predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-                    dwell_predict = predict + season_part
+                        # flow_in
+                        trend, seasonal, residual = decomp(sample_train['flow_in'])
 
-                    # flow_in
-                    trend, seasonal, residual = decomp(sample_train['flow_in'])
+                        trend.dropna(inplace=True)
 
-                    trend.dropna(inplace=True)
+                        trend_model = ARIMA(trend, order=(a, b, c)).fit(disp=-1, method='css')
+                        n = 15
+                        trend_pred = trend_model.forecast(n)[0]
+                        season_part = seasonal[0:n]
+                        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+                        flow_in_predict = predict + season_part
 
-                    trend_model = ARIMA(trend, order=(a, b, c)).fit(disp=-1, method='css')
-                    n = 15
-                    trend_pred = trend_model.forecast(n)[0]
-                    season_part = seasonal[0:n]
-                    predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-                    flow_in_predict = predict + season_part
+                        # flow_out
+                        trend, seasonal, residual = decomp(sample_train['flow_out'])
 
-                    # flow_out
-                    trend, seasonal, residual = decomp(sample_train['flow_out'])
+                        trend.dropna(inplace=True)
 
-                    trend.dropna(inplace=True)
+                        trend_model = ARIMA(trend, order=(a, b, c)).fit(disp=-1, method='css')
+                        n = 15
+                        trend_pred = trend_model.forecast(n)[0]
+                        season_part = seasonal[0:n]
+                        predict = pd.Series(trend_pred, index=season_part.index, name='predict')
+                        flow_out_predict = predict + season_part
 
-                    trend_model = ARIMA(trend, order=(a, b, c)).fit(disp=-1, method='css')
-                    n = 15
-                    trend_pred = trend_model.forecast(n)[0]
-                    season_part = seasonal[0:n]
-                    predict = pd.Series(trend_pred, index=season_part.index, name='predict')
-                    flow_out_predict = predict + season_part
+                        columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
+                        flow_sample_prediction = pd.DataFrame(columns=columns)
+                        for d in range(15):
+                            day = 20180215 + d
+                            dwell = dwell_predict[d]
+                            flow_in = flow_in_predict[d]
+                            flow_out = flow_out_predict[d]
+                            flow_sample_prediction.loc[d] = {columns[0]: day,
+                                                             columns[1]: city,
+                                                             columns[2]: district,
+                                                             columns[3]: dwell,
+                                                             columns[4]: flow_in,
+                                                             columns[5]: flow_out}
 
-                    columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
-                    flow_sample_prediction = pd.DataFrame(columns=columns)
-                    for d in range(15):
-                        day = 20180215 + d
-                        dwell = dwell_predict[d]
-                        flow_in = flow_in_predict[d]
-                        flow_out = flow_out_predict[d]
-                        flow_sample_prediction.loc[d] = {columns[0]: day,
-                                                         columns[1]: city,
-                                                         columns[2]: district,
-                                                         columns[3]: dwell,
-                                                         columns[4]: flow_in,
-                                                         columns[5]: flow_out}
+                        gt_for_each_sample.append(sample_val)
+                        result_for_each_sample.append(flow_sample_prediction)
 
-                    gt_for_each_sample.append(sample_val)
-                    result_for_each_sample.append(flow_sample_prediction)
+                    except:
+                        pass
 
                 result = pd.concat(result_for_each_sample).reset_index(drop=True)
                 gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
                 loss = eval(result, gt)
+                print(a, b, c)
                 loss_table[str(a)+'_'+str(b)+'_'+str(c)] = loss
 
     sorted(loss_table.items(), key=lambda item:item[1])
-    print(loss_table)
+    with open('loss_table.json', 'w') as f:
+        json.dump(loss_table, f)
