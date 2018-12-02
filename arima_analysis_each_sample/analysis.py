@@ -58,8 +58,6 @@ if __name__ == '__main__':
     # read sample data paths
     sample_data_path = '../../data/flow/'
     all_sample = os.listdir(sample_data_path)
-    gt_for_each_sample = []
-    result_for_each_sample = []
 
     for sample in tqdm(all_sample):
 
@@ -94,11 +92,8 @@ if __name__ == '__main__':
                                              columns[4]: flow_in,
                                              columns[5]: flow_out}
 
-        gt_for_each_sample.append(sample_val)
-        result_for_each_sample.append(flow_sample_prediction)
-
         for channel in ['dwell', 'flow_in', 'flow_out']:
-            loss = eval(result_for_each_sample, gt_for_each_sample, channels=[channel])
+            loss = eval(sample_val, flow_sample_prediction, channels=[channel])
             logger.info(channel+':'+str(loss))
 
 
