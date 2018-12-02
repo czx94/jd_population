@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Nov 30 12:46:31 2018
-
-@author: wyq
-"""
 
 import sys, os
 
@@ -41,11 +36,13 @@ def decomp(data):
 
 
 if __name__ == '__main__':
-    #setting log
+    # setting log
     logger = logging.getLogger(__name__)
     logger.setLevel(level=logging.INFO)
     if not os.path.isdir('logs'):
         os.mkdir('logs')
+    if not os.path.isdir('loss_tables'):
+        os.mkdir('loss_tables')
     fg = str(int(time.time()))
     log_name = 'log_' + fg + '.txt'
     handler = logging.FileHandler("./logs/" + log_name)
@@ -61,30 +58,27 @@ if __name__ == '__main__':
     sample_data_path = '../../data/flow/'
     all_sample = os.listdir(sample_data_path)
 
-
-    loss_table = {}
     channels = ['flow_out']
 
-    #search for channel
+    top5_loss_param_each_sample = {}
+    # search for channel
     for channel in channels:
-        # grid search
-        for a in range(12):
-            for b in range(3):
-                for c in range(12):
-                    logger.info(channel+':'+str(a) + '_' + str(b) + '_' + str(c))
-                    loss = 100
-                    gt_for_each_sample = []
-                    result_for_each_sample = []
+        for sample in tqdm(all_sample):
+            loss_table = {}
 
-                    try:
-                        for sample in tqdm(all_sample):
-                            city, district = sample[:-4].split('_')
+            city, district = sample[:-4].split('_')
 
-                            flow_sample = pd.read_csv(sample_data_path + sample)
+            flow_sample = pd.read_csv(sample_data_path + sample)
 
-                            sample_train, sample_val = train_val_split(flow_sample)
+            sample_train, sample_val = train_val_split(flow_sample)
+            # grid search
+            for a in range(12):
+                for b in range(3):
+                    for c in range(12):
+                        loss = 100
 
-                            # first condider dwell
+                        try:
+                            # first condider flow_out
                             channel_predict = predict_by_ARIMA(sample_train, channel, param=(a, b, c), offset=0)
 
                             columns = ['date_dt', 'city_code', 'district_code', channel]
@@ -97,20 +91,22 @@ if __name__ == '__main__':
                                                                  columns[2]: district,
                                                                  columns[3]: channel_used}
 
-                            gt_for_each_sample.append(sample_val)
-                            result_for_each_sample.append(flow_sample_prediction)
+                            loss = eval(flow_sample_prediction, sample_val, [channel])
 
-                        result = pd.concat(result_for_each_sample).reset_index(drop=True)
-                        gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
+                        except:
+                            pass
 
-                        loss = eval(result, gt, [channel])
+                        if loss != 100:
+                            logger.info(district + '_' + channel + ':' + str(a) + '_' + str(b) + '_' + str(c))
+                            logger.info(loss)
 
-                    except:
-                        pass
+                            loss_table[str(a) + '_' + str(b) + '_' + str(c)] = loss
 
-                    logger.info(loss)
-                    loss_table[str(a) + '_' + str(b) + '_' + str(c)] = loss
+            loss_table = sorted(loss_table.items(), key=lambda item: item[1])
+            loss_table = loss_table[:5]
 
-        loss_table = sorted(loss_table.items(), key=lambda item: item[1])
-        with open(channel + 'loss_table.json', 'w') as f:
+            top5_loss_param_each_sample[city + '_' + district + '_' + channel] = loss_table
+
+        with open('./loss_tables/' + channel + '_loss_table_each_sample.json', 'w') as f:
             json.dump(loss_table, f)
+

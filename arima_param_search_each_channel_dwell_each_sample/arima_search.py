@@ -65,6 +65,7 @@ if __name__ == '__main__':
 
     channels = ['dwell']
 
+    top5_loss_param_each_sample = {}
     #search for channel
     for channel in channels:
         for sample in tqdm(all_sample):
@@ -95,7 +96,7 @@ if __name__ == '__main__':
                                                                  columns[2]: district,
                                                                  columns[3]: channel_used}
 
-                            loss = eval(flow_sample_prediction, sample_val)
+                            loss = eval(flow_sample_prediction, sample_val, [channel])
 
                         except:
                             pass
@@ -109,6 +110,9 @@ if __name__ == '__main__':
 
             loss_table = sorted(loss_table.items(), key=lambda item: item[1])
             loss_table = loss_table[:5]
-            with open('./loss_tables/' + district + '_' + channel + '_loss_table.json', 'w') as f:
-                json.dump(loss_table, f)
+
+            top5_loss_param_each_sample[city+'_'+district+'_'+channel] = loss_table
+
+        with open('./loss_tables/' + channel + '_loss_table_each_sample.json', 'w') as f:
+            json.dump(loss_table, f)
 

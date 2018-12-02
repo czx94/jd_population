@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Nov 30 12:46:31 2018
-
-@author: wyq
-"""
 
 import sys, os
 
