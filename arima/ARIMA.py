@@ -54,13 +54,16 @@ if __name__ == '__main__':
         sample_train, sample_val = train_val_split(flow_sample)
 
         # first condider dwell
-        dwell_predict = predict_by_ARIMA(sample_train, 'dwell', param=(1, 1, 6), offset=0)
+        dwell_param = param_json_reader(city, district, 'dwell')
+        dwell_predict = predict_by_ARIMA(sample_train, 'dwell', param=dwell_param)
 
         # flow_in
-        flow_in_predict = predict_by_ARIMA(sample_train, 'flow_in', param=(1, 1, 6), offset=0)
+        flow_in_param = param_json_reader(city, district, 'flow_in')
+        flow_in_predict = predict_by_ARIMA(sample_train, 'flow_in', param=flow_in_param)
 
         # flow_out
-        flow_out_predict = predict_by_ARIMA(sample_train, 'flow_out', param=(1, 1, 6), offset=0)
+        flow_out_param = param_json_reader(city, district, 'flow_out')
+        flow_out_predict = predict_by_ARIMA(sample_train, 'flow_out', param=flow_out_param)
 
         columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
         flow_sample_prediction = pd.DataFrame(columns=columns)
