@@ -95,7 +95,7 @@ if __name__ == '__main__':
                                 flow_sample_prediction.loc[d] = {columns[0]: day,
                                                                  columns[1]: city,
                                                                  columns[2]: district,
-                                                                 columns[3]: channel}
+                                                                 columns[3]: channel_used}
 
                             gt_for_each_sample.append(sample_val)
                             result_for_each_sample.append(flow_sample_prediction)
