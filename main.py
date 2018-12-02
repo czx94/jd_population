@@ -40,6 +40,7 @@ if __name__ == '__main__':
 
         columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
         flow_sample_prediction = pd.DataFrame(columns=columns)
+        
         for d in range(15):
             day = 20180302 + d
             dwell = dwell_predict[d]
