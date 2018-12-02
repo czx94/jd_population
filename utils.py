@@ -1,9 +1,14 @@
 from sklearn.metrics import mean_squared_error, mean_squared_log_error, mean_absolute_error
 from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+
 from statsmodels.tsa.arima_model import ARIMA
 from sklearn.metrics import mean_squared_error
 from math import sqrt
 import pandas as pd
+import matplotlib.pyplot as plt
+
+from preprocessing import *
 
 def MSE(y1, y2):
     return mean_squared_error(y1, y2)
@@ -20,16 +25,17 @@ def MSLE(y1, y2):
 def RMSLE(y1, y2):
     return MSLE(y1, y2) ** 0.5
 
-def eval(pred, groundtruth):
+def eval(pred, groundtruth, channels):
     assert len(pred) == len(groundtruth)
     predict = []
     real = []
     for i in range(len(pred.index)):
-        predict.append(pred.loc[i, ['dwell', 'flow_in', 'flow_out']].tolist())
-        real.append(groundtruth.loc[i, ['dwell', 'flow_in', 'flow_out']].tolist())
+        predict.append(pred.loc[i, channels].tolist())
+        real.append(groundtruth.loc[i, channels].tolist())
 
     result = RMSLE(predict, real)
-    print('RMSLE error:', result)
+    print('RMSLE error: ',result)
+    print('Channels ', channels)
     return result
 
 def predict_by_ARIMA(data, type, param=(1, 1, 5), offset = 1, freq=7):

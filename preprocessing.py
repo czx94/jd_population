@@ -4,6 +4,18 @@ import numpy as np
 from tqdm import tqdm
 import os
 
+#指数平滑公式
+def exponential_smoothing(s, alpha=0.47):
+    s_out = np.zeros(len(s))
+#    s_result[0] = float(s[1]+s[2]+s[3])/3
+    s_out[0] = s[0]
+    for i in range(1, len(s_out)):
+        s_out[i] = alpha*s[i]+(1-alpha)*s_out[i-1]
+
+    for i in range(len(s)):
+        s[i] = s_out[i]
+    # return s_out
+
 def generate_csv(city, districts, df, type):
     if type == 'flow':
         train_city = df[df['city_code'] == city]

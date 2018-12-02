@@ -81,4 +81,6 @@ if __name__ == '__main__':
 
     result = pd.concat(result_for_each_sample).reset_index(drop=True)
     gt = pd.concat(gt_for_each_sample).reset_index(drop=True)
-    eval(result, gt, channels = ['dwell', 'flow_in', 'flow_out'])
+
+    for channel in ['dwell', 'flow_in', 'flow_out']:
+        eval(result, gt, channels = [channel])

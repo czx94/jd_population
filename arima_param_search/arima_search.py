@@ -118,6 +118,6 @@ if __name__ == '__main__':
                 logger.info(loss)
                 loss_table[str(a) + '_' + str(b) + '_' + str(c)] = loss
 
-    sorted(loss_table.items(), key=lambda item:item[1])
+    loss_table = sorted(loss_table.items(), key=lambda item:item[1])
     with open('loss_table.json', 'w') as f:
         json.dump(loss_table, f)
