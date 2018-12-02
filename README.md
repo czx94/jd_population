@@ -40,3 +40,14 @@ JDD2018
 
 - result = ARIMA(1,1,5), offset = 1
 - 0.1341
+
+## exp9
+
+- result = dwellARIMA(1,1,6), flow_inARIMA(1,1,6), flow_outARIMA(1,1,5), offset = 1
+- 0.1411
+
+## exp10
+
+- result = dwellARIMA(2,1,6), flow_inARIMA(1,1,5), flow_outARIMA(1,1,5), offset = 1
+- 0.1350
+

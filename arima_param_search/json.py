@@ -6,3 +6,5 @@ if __name__ == '__main__':
 
     loss_table = sorted(load_dict.items(), key=lambda item: item[1])
     print(loss_table[:3])
+
+    print(tuple(map(lambda a: int(a), [str(2),str(3)])))

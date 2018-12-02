@@ -7,6 +7,7 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 import pandas as pd
 import matplotlib.pyplot as plt
+import json
 
 from preprocessing import *
 
@@ -72,3 +73,13 @@ def stat_mod_n(n, df, ds_type = 'flow'):
             result_by_mod_n[mod] = v.drop(['o_city_code', 'o_district_code', 'date_dt'], axis=1).mean().to_dict()
 
     return result_by_mod_n
+
+def param_json_reader(city, district, channel_type):
+    json_path = './arima_param_search_each_channel_'+channel_type+'_each_sample/loss_tables/'+channel_type+'_loss_table_each_sample.json'
+    with open(json_path, 'r') as load_f:
+        loss_dict = json.load(load_f)
+
+    param = loss_dict[city+'_'+district][0][0].split('_')
+    param = tuple(map(lambda a: int(a), param))
+
+    return param
