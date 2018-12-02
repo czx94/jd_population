@@ -75,11 +75,11 @@ def stat_mod_n(n, df, ds_type = 'flow'):
     return result_by_mod_n
 
 def param_json_reader(city, district, channel_type):
-    json_path = './arima_param_search_each_channel_'+channel_type+'_each_sample/loss_tables/'+channel_type+'_loss_table_each_sample.json'
+    json_path = '../arima_param_search_each_channel_'+channel_type+'_each_sample/loss_tables/'+channel_type+'_loss_table_each_sample.json'
     with open(json_path, 'r') as load_f:
         loss_dict = json.load(load_f)
 
-    param = loss_dict[city+'_'+district][0][0].split('_')
+    param = loss_dict[city+'_'+district+'_'+channel_type][0][0].split('_')
     param = tuple(map(lambda a: int(a), param))
 
     return param
