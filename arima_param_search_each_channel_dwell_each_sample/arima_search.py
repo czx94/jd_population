@@ -113,6 +113,7 @@ if __name__ == '__main__':
 
             top5_loss_param_each_sample[city+'_'+district+'_'+channel] = loss_table
 
-        with open('./loss_tables/' + channel + '_loss_table_each_sample.json', 'w') as f:
-            json.dump(loss_table, f)
+            #to be prudent
+            with open('./loss_tables/' + channel + '_loss_table_each_sample.json', 'w') as f:
+                json.dump(top5_loss_param_each_sample, f)
 
