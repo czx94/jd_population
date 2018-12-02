@@ -45,25 +45,28 @@ if __name__ == '__main__':
         # first condider dwell
         try:
             dwell_param = param_json_reader(city, district, 'dwell')
+            dwell_predict = predict_by_ARIMA(sample_train, 'dwell', param=dwell_param)
         except:
             dwell_param = (1, 1, 5)
-        dwell_predict = predict_by_ARIMA(sample_train, 'dwell', param=dwell_param)
+            dwell_predict = predict_by_ARIMA(sample_train, 'dwell', param=dwell_param)
         logger.info(district + '_dwell:' + '_'.join(list(map(lambda x: str(x), dwell_param))))
 
         # flow_in
         try:
             flow_in_param = param_json_reader(city, district, 'flow_in')
+            flow_in_predict = predict_by_ARIMA(sample_train, 'flow_in', param=flow_in_param)
         except:
             flow_in_param = (1, 1, 5)
-        flow_in_predict = predict_by_ARIMA(sample_train, 'flow_in', param=flow_in_param)
+            flow_in_predict = predict_by_ARIMA(sample_train, 'flow_in', param=flow_in_param)
         logger.info(district + '_flow_in:' + '_'.join(list(map(lambda x: str(x), flow_in_param))))
 
         # flow_out
         try:
             flow_out_param = param_json_reader(city, district, 'flow_out')
+            flow_out_predict = predict_by_ARIMA(sample_train, 'flow_out', param=flow_out_param)
         except:
             flow_out_param = (1, 1, 5)
-        flow_out_predict = predict_by_ARIMA(sample_train, 'flow_out', param=flow_out_param)
+            flow_out_predict = predict_by_ARIMA(sample_train, 'flow_out', param=flow_out_param)
         logger.info(district + '_flow_out:' + '_'.join(list(map(lambda x: str(x), flow_out_param))))
 
         columns = ['date_dt', 'city_code', 'district_code', 'dwell', 'flow_in', 'flow_out']
