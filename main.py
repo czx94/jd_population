@@ -57,3 +57,4 @@ if __name__ == '__main__':
 
     result = pd.concat(result_for_each_sample)
     result.to_csv('./result/prediction.csv', index=False, header=None)
+    print('csv generated')

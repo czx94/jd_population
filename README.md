@@ -23,5 +23,20 @@ JDD2018
 
 ## exp5
 
-- result = ARIMA(1,1,5)
+- result = ARIMA(1,1,5), offset = 0
 - 0.1425
+
+## exp6
+
+- result = ARIMA(1,1,6), offset = 1
+- 0.1430
+
+## exp7
+
+- result = ARIMA(1,1,6), offset = 0
+- 0.1510
+
+## exp8
+
+- result = ARIMA(1,1,5), offset = 1
+- 0.1341

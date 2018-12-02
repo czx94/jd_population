@@ -32,8 +32,8 @@ def eval(pred, groundtruth):
     print('RMSLE error:', result)
     return result
 
-def predict_by_ARIMA(data, type, param=(1, 1, 6), offset = 1):
-    trend, seasonal, residual = decomp(data[type])
+def predict_by_ARIMA(data, type, param=(1, 1, 5), offset = 1, freq=7):
+    trend, seasonal, residual = decomp(data[type], freq=freq)
 
     trend.dropna(inplace=True)
 
@@ -45,8 +45,8 @@ def predict_by_ARIMA(data, type, param=(1, 1, 6), offset = 1):
 
     return predict + season_part
 
-def decomp(data):
-    decomposition = seasonal_decompose(data, freq=7, two_sided=False)
+def decomp(data, freq=7):
+    decomposition = seasonal_decompose(data, freq=freq, two_sided=False)
 
     trend = decomposition.trend
 
