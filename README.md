@@ -51,3 +51,7 @@ JDD2018
 - result = dwellARIMA(2,1,6), flow_inARIMA(1,1,5), flow_outARIMA(1,1,5), offset = 1
 - 0.1350
 
+## exp11
+
+- result = dwell param search each sample each channel(partial)
+- 0.1364
