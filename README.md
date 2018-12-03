@@ -55,3 +55,8 @@ JDD2018
 
 - result = dwell param search each sample each channel(partial)
 - 0.1364
+
+## exp12
+
+- result = dwell param search each sample each channel(total)
+- 0.1442
